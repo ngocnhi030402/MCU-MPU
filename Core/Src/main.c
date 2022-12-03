@@ -1,4 +1,7 @@
 /* USER CODE BEGIN Header */
+#include "Button_software.h"
+#include "Software_timer.h"
+#include "Light_controller.h"
 /**
   ******************************************************************************
   * @file           : main.c
@@ -44,6 +47,35 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+#define  RED_TIME_RESET		12;
+#define  GREEN_TIME_RESET	9;
+#define  YELLOW_TIME_RESET	3;
+
+const int red_time_reset = RED_TIME_RESET;
+const int green_time_reset = GREEN_TIME_RESET;
+const int yellow_time_reset = YELLOW_TIME_RESET;
+
+int RED_TIME  =	RED_TIME_RESET;
+int GREEN_TIME = GREEN_TIME_RESET;
+int YELLOW_TIME = YELLOW_TIME_RESET;
+
+int isYellow = 0;
+
+#define timer_prop  1000
+
+#define LIGHT_BLINK_TIME 2
+
+const int oneSec = timer_prop*1;
+const int ledRefreshTime = timer_prop*0.5;
+
+//int red_time = RED_TIME*timer_prop;
+//int green_time = GREEN_TIME*timer_prop;
+//int yellow_time = YELLOW_TIME*timer_prop;
+
+int light_blink_time = LIGHT_BLINK_TIME*timer_prop;
+
+int countdown_0 = RED_TIME_RESET;
+int countdown_1 = GREEN_TIME_RESET;
 
 /* USER CODE END PV */
 
@@ -58,7 +90,119 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+STATE status = INIT_1;
+MODE mode = MODE_AUTO;
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	button_reading();
+	for (int i = 0 ; i < TIMER_LIMIT; i++){
+		timerRun(i);
+	}
+}
+
+void redManualRun(){
+	turnOnRed(0);
+	turnOnGreen(1);
+}
+
+void redTuningRun(){
+	turnOnRed(0);
+	turnOnGreen(1);
+
+	if (is_button_pressed(1) == 1){
+		RED_TIME = (RED_TIME < 99) ? RED_TIME+1 : RED_TIME;
+		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	}
+	else if (is_button_pressed(2) == 1){
+		RED_TIME = red_time_reset;
+		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	}
+
+	countdown_0 = RED_TIME;
+	countdown_1 = 2;
+}
+
+void greenManualRun(){
+	turnOnGreen(0);
+	turnOnRed(1);
+}
+
+void greenTuningRun(){
+	turnOnGreen(0);
+	turnOnRed(1);
+
+	if (is_button_pressed(1) == 1){
+		YELLOW_TIME = (YELLOW_TIME < 99) ? YELLOW_TIME+1 : YELLOW_TIME;
+		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	}
+	else if (is_button_pressed(2) == 1){
+		YELLOW_TIME = yellow_time_reset;
+		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	}
+
+	countdown_0 = YELLOW_TIME;
+	countdown_1 = 3;
+}
+
+void yellowManualRun(){
+	turnOnYellow(0);
+	turnOnRed(1);
+}
+
+void yellowTuningRun(){
+	turnOnYellow(0);
+	turnOnRed(1);
+
+	if (is_button_pressed(1) == 1){
+		GREEN_TIME = (GREEN_TIME < 99) ? GREEN_TIME+1 : GREEN_TIME;
+		RED_TIME = GREEN_TIME + YELLOW_TIME;
+	}
+	else if (is_button_pressed(2) == 1){
+		GREEN_TIME = green_time_reset;
+		RED_TIME = GREEN_TIME + YELLOW_TIME;
+	}
+
+	countdown_0 = GREEN_TIME;
+	countdown_1 = 4;
+}
+
+void redAutoRun(){
+	turnOnRed(0);
+	if (countdown_1 <= 0 && isYellow == 0){
+		isYellow = 1;
+		countdown_1 = YELLOW_TIME;
+		turnOnYellow(1);
+	}
+	else if (isYellow == 0){
+		turnOnGreen(1);
+	}
+
+	if (countdown_0 <= 0){
+		status = GREEN_AUTO;
+		countdown_0 = GREEN_TIME;
+		countdown_1 = RED_TIME;
+	}
+}
+
+void greenAutoRun(){
+	turnOnGreen(0);
+	turnOnRed(1);
+	if (countdown_0 <= 0){
+		status = YELLOW_AUTO;
+		countdown_0 = YELLOW_TIME;
+	}
+}
+
+void yellowAutoRun(){
+	turnOnYellow(0);
+	turnOnRed(1);
+	if (countdown_0 <= 0){
+		status = RED_AUTO;
+		countdown_0 = RED_TIME;
+		countdown_1 = GREEN_TIME;
+		isYellow = 0;
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -92,10 +236,10 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  setTimer(oneSec, 1);
+  setTimer(ledRefreshTime, 0);
 
-  void testLED(){
-	  HAL_GPIO_TogglePin(LED_1_0_GPIO_Port, LED_1_0_Pin);
-  }
+  HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,32 +247,117 @@ int main(void)
 //  int counter = 1;
   while (1)
   {
+	  /*
+	   * -------------- FSM ----------------
+	   */
+	  switch(status){
+		  case (INIT_1):
+			mode = MODE_AUTO;
+			status = RED_AUTO;
+			countdown_0 = RED_TIME;
+			countdown_1 = GREEN_TIME;
+			isYellow = 0;
+			break;
+
+
+		  case (RED_AUTO):
+			redAutoRun();
+
+		    // State transition auto->manual
+		  	if (is_button_pressed(0) == 1){
+		  		mode = MODE_MANUAL;
+		  		status = RED_MAN;
+		  		setTimer(light_blink_time, 2);
+		  		countdown_0 = RED_TIME;
+		  		countdown_1 = 2;
+		  		turnOffAll();
+		  	}
+			break;
+
+
+		  case (GREEN_AUTO):
+			greenAutoRun();
+
+			// State transition auto->manual
+			if (is_button_pressed(1) == 1){
+				mode = MODE_MANUAL;
+				status = RED_MAN;
+				setTimer(light_blink_time, 2);
+				countdown_0 = RED_TIME;
+				countdown_1 = 2;
+				turnOffAll();
+			}
+			break;
+
+
+		  case (YELLOW_AUTO):
+			yellowAutoRun();
+
+			// State transition auto->manual
+			if (is_button_pressed(1) == 1){
+				mode = MODE_MANUAL;
+				status = RED_MAN;
+				turnOffAll();
+			}
+			break;
+
+
+		  case(RED_MAN):
+			redManualRun();
+
+		    // State transition red_man -> green_man
+		  	if (is_button_pressed(1) == 1){
+		  		mode = MODE_MANUAL;
+		  		status = GREEN_MAN;
+		  		turnOffAll();
+		  	}
+			break;
+
+
+		  case(GREEN_MAN):
+			greenManualRun();
+
+		  	// State transition green_man -> yellow_man
+		  	if (is_button_pressed(0) == 1){
+		  		mode = MODE_MANUAL;
+		  		status = YELLOW_MAN;
+		  		turnOffAll();
+		  	}
+			break;
+
+
+		  case(YELLOW_MAN):
+			// State transition green_man -> yellow_man
+			if (is_button_pressed(0) == 1){
+				mode = MODE_MANUAL;
+				status = RED_MAN;
+				turnOffAll();
+			}
+			break;
+
+
+		  default:
+			status = INIT_1;
+			break;
+	  }
+
+	  /*
+	   * -------------- TIMER THING ----------------
+	   */
+	  if (mode == MODE_AUTO){
+		  if (timer_flag[1] == 1){
+			  setTimer(oneSec,1);
+			  countdown_0--;
+			  countdown_1--;
+		  }
+	  }
+	  else{
+
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-	  HAL_GPIO_WritePin(LED_1_0_GPIO_Port, LED_1_0_Pin, 1);
-	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 1);
-	  HAL_Delay(1000);
-
-	  HAL_GPIO_WritePin(LED_1_0_GPIO_Port, LED_1_0_Pin, 0);
-	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 0);
-	  HAL_Delay(1000);
-
-	  HAL_GPIO_WritePin(LED_1_0_GPIO_Port, LED_1_0_Pin, 1);
-	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 0);
-	  HAL_Delay(1000);
-
-	  HAL_GPIO_WritePin(LED_1_0_GPIO_Port, LED_1_0_Pin, 0);
-	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 1);
-	  HAL_Delay(1000);
-
-
-
-//	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 0);
-//	  HAL_GPIO_WritePin(LED_1_1_GPIO_Port, LED_1_1_Pin, 1);
-
-	}
+  }
   /* USER CODE END 3 */
 }
 

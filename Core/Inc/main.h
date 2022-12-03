@@ -36,7 +36,28 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef enum {
+	INIT_1,
 
+	RED_AUTO,
+	YELLOW_AUTO,
+	GREEN_AUTO,
+
+	RED_MAN,
+	GREEN_MAN,
+	YELLOW_MAN,
+
+	RED_TUN,
+	GREEN_TUN,
+	YELLOW_TUN
+
+} STATE;
+
+typedef enum {
+	MODE_AUTO,
+	MODE_MANUAL,
+	MODE_TUNING
+} MODE;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -93,7 +114,7 @@ void Error_Handler(void);
 #define LED_2_0_Pin GPIO_PIN_5
 #define LED_2_0_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
+#define SYSTEM_DELAY 	10
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
