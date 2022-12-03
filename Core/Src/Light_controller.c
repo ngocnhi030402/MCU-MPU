@@ -11,13 +11,11 @@ GPIO_TypeDef * lightPort[2][3] = {
 		{
 			LED_1_0_GPIO_Port,
 			LED_1_1_GPIO_Port,
-			LED_1_2_GPIO_Port
 		},
 
 		{
 			LED_2_0_GPIO_Port,
 			LED_2_1_GPIO_Port,
-			LED_2_2_GPIO_Port
 		}
 };
 
@@ -25,13 +23,11 @@ uint16_t * lightPin[2][3] = {
 		{
 			LED_1_0_Pin,
 			LED_1_1_Pin,
-			LED_1_2_Pin
 		},
 
 		{
 			LED_2_0_Pin,
 			LED_2_1_Pin,
-			LED_2_2_Pin
 		}
 };
 
@@ -40,9 +36,8 @@ void turnOnRed(int lightIndex){
 	if(lightIndex > 1)
 		return;
 
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][RED_INDEX], 0);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][GREEN_INDEX], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][YELLOW_INDEX], lightPin[lightIndex][YELLOW_INDEX], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
 }
 
 
@@ -50,18 +45,16 @@ void turnOnGreen(int lightIndex){
 	if(lightIndex > 1)
 		return;
 
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][RED_INDEX], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][GREEN_INDEX], 0);
-	HAL_GPIO_WritePin(lightPort[lightIndex][YELLOW_INDEX], lightPin[lightIndex][YELLOW_INDEX], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
 }
 
 void turnOnYellow(int lightIndex){
 	if(lightIndex > 1)
 		return;
 
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][RED_INDEX], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][GREEN_INDEX], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][YELLOW_INDEX], lightPin[lightIndex][YELLOW_INDEX], 0);
+	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 1);
 }
 
 void toggleRed(int lightIndex){
