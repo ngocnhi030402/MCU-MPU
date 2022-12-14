@@ -19,7 +19,7 @@ GPIO_TypeDef * lightPort[2][3] = {
 		}
 };
 
-uint16_t * lightPin[2][3] = {
+uint16_t lightPin[2][3] = {
 		{
 			LED_1_0_Pin,
 			LED_1_1_Pin,
@@ -33,52 +33,26 @@ uint16_t * lightPin[2][3] = {
 
 
 void turnOnRed(int lightIndex){
-	if(lightIndex > 1)
-		return;
-
 	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
 	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
 }
 
 
 void turnOnGreen(int lightIndex){
-	if(lightIndex > 1)
-		return;
-
 	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
 	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
 }
 
 void turnOnYellow(int lightIndex){
-	if(lightIndex > 1)
-		return;
-
 	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
 	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 1);
 }
 
-void toggleRed(int lightIndex){
-	if(lightIndex > 1)
-		return;
-	HAL_GPIO_TogglePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][RED_INDEX]);
-}
-
-void toggleGreen(int lightIndex){
-	if(lightIndex > 1)
-		return;
-	HAL_GPIO_TogglePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][GREEN_INDEX]);
-}
-
-void toggleYellow(int lightIndex){
-	if(lightIndex > 1)
-		return;
-	HAL_GPIO_TogglePin(lightPort[lightIndex][YELLOW_INDEX], lightPin[lightIndex][YELLOW_INDEX]);
-}
 
 void turnOffAll(){
-	for (int lightIndex = 0; lightIndex <= 1; lightIndex++){
-		HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][RED_INDEX], 1);
-		HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][GREEN_INDEX], 1);
-		HAL_GPIO_WritePin(lightPort[lightIndex][YELLOW_INDEX], lightPin[lightIndex][YELLOW_INDEX], 1);
-	}
+	HAL_GPIO_WritePin(lightPort[0][RED_INDEX], lightPin[0][0], 0);
+	HAL_GPIO_WritePin(lightPort[0][GREEN_INDEX], lightPin[0][1], 0);
+
+	HAL_GPIO_WritePin(lightPort[1][RED_INDEX], lightPin[1][0], 0);
+	HAL_GPIO_WritePin(lightPort[1][GREEN_INDEX], lightPin[1][1], 0);
 }

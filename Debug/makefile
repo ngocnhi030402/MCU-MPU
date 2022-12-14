@@ -75,8 +75,8 @@ all: main-build
 main-build: assignment.elf secondary-outputs
 
 # Tool invocations
-assignment.elf assignment.map: $(OBJS) $(USER_OBJS) C:\Users\phamk\repo\MCU-MPU\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "assignment.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\phamk\repo\MCU-MPU\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="assignment.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+assignment.elf assignment.map: $(OBJS) $(USER_OBJS) C:\Users\nguye\Documents\GitHub\MCU-MPU\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "assignment.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\nguye\Documents\GitHub\MCU-MPU\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="assignment.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
