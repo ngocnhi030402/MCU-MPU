@@ -5,13 +5,14 @@
 #include "software_timer.h"
 
 //we aim to work with more than one buttons
-#define NO_OF_BUTTONS 				       3
+#define NO_OF_BUTTONS 				       4
 //time to register hold
 #define DURATION_FOR_BUTTON_HOLD		   500
 //time interval inbetween each press to detect double press
 #define DURATION_FOR_DOUBLE_PRESS		   200
 #define BUTTON_IS_PRESSED                  GPIO_PIN_RESET
 #define BUTTON_IS_RELEASED                 GPIO_PIN_SET
+#define DURATION_FOR_PRESSED_TIMEOUT	   50
 //the buffer that the final result is stored after
 
 extern uint8_t flagForButtonPressed[NO_OF_BUTTONS];

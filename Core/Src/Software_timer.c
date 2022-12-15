@@ -9,7 +9,7 @@
 
 extern int timer_counter[TIMER_LIMIT] = {0,0,0,0};
 extern int timer_flag[TIMER_LIMIT] = {0,0,0,0};
-int TIMER_CYCLE = 10;
+int TIMER_CYCLE = 1;
 
 void setTimer(int duration, int flag){
 	timer_counter[flag] = duration / TIMER_CYCLE;
