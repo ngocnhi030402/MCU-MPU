@@ -78,9 +78,7 @@ void button_reading(void){
 int is_button_pressed(int index) {
 	if(index < 0 || index > NO_OF_BUTTONS) return 0;
 	if(flagForButtonPressed[index] == 1) {
-		if (waitForPressTimeOut[index] <= 0)
-			flagForButtonPressed[index] = 0;
-
+		flagForButtonPressed[index] = 0;
 		return 1;
 	}
 	return 0;
