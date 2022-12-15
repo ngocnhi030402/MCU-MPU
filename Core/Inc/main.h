@@ -101,20 +101,20 @@ void Error_Handler(void);
 #define PEDESTRIAN_LED_0_GPIO_Port GPIOB
 #define PEDESTRIAN_LED_1_Pin GPIO_PIN_8
 #define PEDESTRIAN_LED_1_GPIO_Port GPIOA
-#define LED_1_1_Pin GPIO_PIN_10
-#define LED_1_1_GPIO_Port GPIOA
+#define LED_1_0_Pin GPIO_PIN_10
+#define LED_1_0_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define LED_1_0_Pin GPIO_PIN_3
-#define LED_1_0_GPIO_Port GPIOB
+#define LED_1_1_Pin GPIO_PIN_3
+#define LED_1_1_GPIO_Port GPIOB
 #define LED_2_1_Pin GPIO_PIN_4
 #define LED_2_1_GPIO_Port GPIOB
 #define LED_2_0_Pin GPIO_PIN_5
 #define LED_2_0_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-#define SYSTEM_DELAY 	10
+#define SYSTEM_DELAY 	1
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

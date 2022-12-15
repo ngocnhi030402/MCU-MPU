@@ -47,9 +47,9 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-#define  RED_TIME_RESET		12;
-#define  GREEN_TIME_RESET	9;
-#define  YELLOW_TIME_RESET	3;
+#define  RED_TIME_RESET		5;
+#define  GREEN_TIME_RESET	3;
+#define  YELLOW_TIME_RESET	2;
 
 const int red_time_reset = RED_TIME_RESET;
 const int green_time_reset = GREEN_TIME_RESET;
@@ -102,7 +102,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 void redManualRun(){
 	turnOnRed(0);
-	turnOnGreen(1);
+	if (isYellow == 0)
+		turnOnGreen(1);
+	else
+		turnOnYellow(1);
 }
 
 void redTuningRun(){
@@ -190,13 +193,14 @@ void greenAutoRun(){
 	if (countdown_0 <= 0){
 		status = YELLOW_AUTO;
 		countdown_0 = YELLOW_TIME;
+		countdown_1 = RED_TIME - GREEN_TIME;
 	}
 }
 
 void yellowAutoRun(){
 	turnOnYellow(0);
 	turnOnRed(1);
-	if (countdown_0 <= 0){
+	if (countdown_0 <= 0 && countdown_1 <= 0){
 		status = RED_AUTO;
 		countdown_0 = RED_TIME;
 		countdown_1 = GREEN_TIME;
@@ -247,9 +251,9 @@ int main(void)
 //  int counter = 1;
   while (1)
   {
-	  /*
-	   * -------------- FSM ----------------
-	   */
+//	  /*
+//	   * -------------- FSM ----------------
+//	   */
 	  switch(status){
 		  case (INIT_1):
 			mode = MODE_AUTO;
@@ -264,13 +268,14 @@ int main(void)
 			redAutoRun();
 
 		    // State transition auto->manual
-		  	if (is_button_pressed(0) == 1){
+		  	if (is_button_pressed(1) == 1){
 		  		mode = MODE_MANUAL;
 		  		status = RED_MAN;
 		  		setTimer(light_blink_time, 2);
 		  		countdown_0 = RED_TIME;
 		  		countdown_1 = 2;
 		  		turnOffAll();
+		  		isYellow = 0;
 		  	}
 			break;
 
@@ -286,6 +291,7 @@ int main(void)
 				countdown_0 = RED_TIME;
 				countdown_1 = 2;
 				turnOffAll();
+				isYellow = 0;
 			}
 			break;
 
@@ -298,6 +304,7 @@ int main(void)
 				mode = MODE_MANUAL;
 				status = RED_MAN;
 				turnOffAll();
+				isYellow = 0;
 			}
 			break;
 
@@ -305,12 +312,18 @@ int main(void)
 		  case(RED_MAN):
 			redManualRun();
 
-		    // State transition red_man -> green_man
-		  	if (is_button_pressed(1) == 1){
-		  		mode = MODE_MANUAL;
-		  		status = GREEN_MAN;
-		  		turnOffAll();
-		  	}
+			// State transition red_man -> green_man
+			if (is_button_pressed(0) == 1){
+				if (isYellow == 0){
+					isYellow = 1;
+				}
+				else{
+					mode = MODE_MANUAL;
+					status = GREEN_MAN;
+					turnOffAll();
+				}
+			}
+
 			break;
 
 
@@ -327,10 +340,12 @@ int main(void)
 
 
 		  case(YELLOW_MAN):
+			yellowManualRun();
 			// State transition green_man -> yellow_man
 			if (is_button_pressed(0) == 1){
 				mode = MODE_MANUAL;
 				status = RED_MAN;
+				isYellow = 0;
 				turnOffAll();
 			}
 			break;
@@ -493,10 +508,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LD2_Pin|SPEAKER_Pin|PEDESTRIAN_LED_1_Pin|LED_1_1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LD2_Pin|SPEAKER_Pin|PEDESTRIAN_LED_1_Pin|LED_1_0_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin|LED_1_0_Pin|LED_2_1_Pin|LED_2_0_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin|LED_1_1_Pin|LED_2_1_Pin|LED_2_0_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -507,11 +522,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : BUTTON0_Pin BUTTON1_Pin BUTTON2_Pin */
   GPIO_InitStruct.Pin = BUTTON0_Pin|BUTTON1_Pin|BUTTON2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD2_Pin SPEAKER_Pin PEDESTRIAN_LED_1_Pin LED_1_1_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin|SPEAKER_Pin|PEDESTRIAN_LED_1_Pin|LED_1_1_Pin;
+  /*Configure GPIO pins : LD2_Pin SPEAKER_Pin PEDESTRIAN_LED_1_Pin LED_1_0_Pin */
+  GPIO_InitStruct.Pin = LD2_Pin|SPEAKER_Pin|PEDESTRIAN_LED_1_Pin|LED_1_0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -520,11 +535,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : BUTTON3_Pin */
   GPIO_InitStruct.Pin = BUTTON3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BUTTON3_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PEDESTRIAN_LED_0_Pin LED_1_0_Pin LED_2_1_Pin LED_2_0_Pin */
-  GPIO_InitStruct.Pin = PEDESTRIAN_LED_0_Pin|LED_1_0_Pin|LED_2_1_Pin|LED_2_0_Pin;
+  /*Configure GPIO pins : PEDESTRIAN_LED_0_Pin LED_1_1_Pin LED_2_1_Pin LED_2_0_Pin */
+  GPIO_InitStruct.Pin = PEDESTRIAN_LED_0_Pin|LED_1_1_Pin|LED_2_1_Pin|LED_2_0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

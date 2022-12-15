@@ -10,12 +10,12 @@
 GPIO_TypeDef * lightPort[2][3] = {
 		{
 			LED_1_0_GPIO_Port,
-			LED_1_1_GPIO_Port,
+			LED_1_1_GPIO_Port
 		},
 
 		{
 			LED_2_0_GPIO_Port,
-			LED_2_1_GPIO_Port,
+			LED_2_1_GPIO_Port
 		}
 };
 
@@ -27,32 +27,44 @@ uint16_t lightPin[2][3] = {
 
 		{
 			LED_2_0_Pin,
-			LED_2_1_Pin,
+			LED_2_1_Pin
 		}
 };
 
 
 void turnOnRed(int lightIndex){
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
+	if(lightIndex > 1)
+		return;
+
+	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 0);
 }
 
 
 void turnOnGreen(int lightIndex){
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 0);
+	if(lightIndex > 1)
+		return;
+
+	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 0);
+	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 1);
+
 }
 
 void turnOnYellow(int lightIndex){
-	HAL_GPIO_WritePin(lightPort[lightIndex][RED_INDEX], lightPin[lightIndex][0], 1);
-	HAL_GPIO_WritePin(lightPort[lightIndex][GREEN_INDEX], lightPin[lightIndex][1], 1);
+	if(lightIndex > 1)
+		return;
+
+	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 1);
+	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 1);
 }
 
 
 void turnOffAll(){
-	HAL_GPIO_WritePin(lightPort[0][RED_INDEX], lightPin[0][0], 0);
-	HAL_GPIO_WritePin(lightPort[0][GREEN_INDEX], lightPin[0][1], 0);
+	int lightIndex = 0;
+	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 0);
+	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 0);
 
-	HAL_GPIO_WritePin(lightPort[1][RED_INDEX], lightPin[1][0], 0);
-	HAL_GPIO_WritePin(lightPort[1][GREEN_INDEX], lightPin[1][1], 0);
+	lightIndex = 1;
+	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 0);
+	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 0);
 }
