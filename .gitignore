@@ -1,4 +1,4 @@
-Debug/
+Debug/*
 *.pdsbak
 *.aux
 *.bcf
@@ -11,4 +11,5 @@ Debug/
 *.log
 *.run.xml
 *.synctex.gz
+*.o
 desktop.ini
