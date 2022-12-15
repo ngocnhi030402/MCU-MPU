@@ -1,1 +1,15 @@
-Debug/
+Debug/*
+*.pdsbak
+*.aux
+*.bcf
+*.fdb_latexmk
+*.fls
+*.out
+*.run
+*.synctex
+*.toc
+*.log
+*.run.xml
+*.synctex.gz
+*.o
+desktop.ini
