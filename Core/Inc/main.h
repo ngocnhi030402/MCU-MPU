@@ -47,9 +47,9 @@ typedef enum {
 	GREEN_MAN,
 	YELLOW_MAN,
 
-	RED_TUN,
-	GREEN_TUN,
-	YELLOW_TUN
+	RED_TUNING,
+	GREEN_TUNING,
+	YELLOW_TUNING
 
 } STATE;
 
@@ -115,6 +115,32 @@ void Error_Handler(void);
 #define LED_2_0_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 #define SYSTEM_DELAY 	1
+
+// timer index define
+#define COUNTDOWN_TIMER		0
+#define TUNE_BLINK_TIMER	1
+#define CHECK_FLASH_TIMER 	3
+
+// conutdown define
+#define  RED_TIME_RESET		5
+#define  GREEN_TIME_RESET	3
+#define  YELLOW_TIME_RESET	2
+
+#define RED_MAX_COUNTDOWN 		20
+#define GREEN_MAX_COUNTDOWN 	15
+
+#define RED_MIN_COUNTDOWN 	 	12
+#define GREEN_MIN_COUNTDOWN		9
+
+// button index define
+#define STATE_CHANGE_BUTTON			0
+#define INSIDE_STATE_CHANGE_BUTTON	1
+#define TUNING_BUTTON				2
+
+#define timer_prop  1000
+#define LIGHT_BLINK_TIME 2
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
