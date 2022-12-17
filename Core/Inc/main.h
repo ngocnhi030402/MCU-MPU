@@ -17,6 +17,7 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
+#pragma once
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -49,7 +50,8 @@ typedef enum {
 
 	RED_TUNING,
 	GREEN_TUNING,
-	YELLOW_TUNING
+
+	PEDES
 
 } STATE;
 
@@ -58,6 +60,14 @@ typedef enum {
 	MODE_MANUAL,
 	MODE_TUNING
 } MODE;
+
+enum StateLight{
+	INIT,
+	RED,
+	YELLOW,
+	GREEN
+};
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
