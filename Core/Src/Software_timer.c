@@ -6,6 +6,8 @@
  */
 
 #include "Software_timer.h"
+#include "global.h"
+#include "fsm_traffic.h"
 
 extern int timer_counter[TIMER_LIMIT] = {0,0,0,0};
 extern int timer_flag[TIMER_LIMIT] = {0,0,0,0};

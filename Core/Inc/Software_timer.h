@@ -8,6 +8,9 @@
 #ifndef INC_SOFTWARE_TIMER_H_
 #define INC_SOFTWARE_TIMER_H_
 
+#include <stdint.h>
+#include <stdlib.h>
+
 #define TIMER_LIMIT 4
 
 extern int timer_counter[TIMER_LIMIT];
@@ -16,5 +19,7 @@ extern int TIMER_CYCLE;
 
 void setTimer(int duration, int flag);
 void timerRun(int flag);
+
+
 
 #endif /* INC_SOFTWARE_TIMER_H_ */
