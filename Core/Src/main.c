@@ -1,7 +1,5 @@
 /* USER CODE BEGIN Header */
-#include "Button_software.h"
-#include "Software_timer.h"
-#include "Light_controller.h"
+
 /**
   ******************************************************************************
   * @file           : main.c
@@ -24,7 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "global.h"
 
+#include "Button_software.h"
+#include "Software_timer.h"
+#include "Light_controller.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,7 +66,7 @@ int isYellow = 0;
 #define timer_prop  1000
 
 #define LIGHT_BLINK_TIME 2
-
+#define BLINK 6
 const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
 
@@ -77,6 +79,7 @@ int light_blink_time = LIGHT_BLINK_TIME*timer_prop;
 int countdown_0 = RED_TIME_RESET;
 int countdown_1 = GREEN_TIME_RESET;
 
+int flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -205,6 +208,21 @@ void yellowAutoRun(){
 		countdown_0 = RED_TIME;
 		countdown_1 = GREEN_TIME;
 		isYellow = 0;
+	}
+}
+void blinkyLight(enum StateLight currentState){
+	if(timer_flag[BLINK]){
+		if(blink){
+			turnOffAll();
+			blink = 0;
+		}
+		else{
+			redAutoRun();
+			greenAutoRun();
+//			turnOnLight(currentState,HOR);
+			blink = 1;
+		}
+		setTimer(BLINK,200);
 	}
 }
 /* USER CODE END 0 */
@@ -350,6 +368,29 @@ int main(void)
 			}
 			break;
 
+		  case PEDES:
+		  		setTimer(BLINK,10);
+		  		blinkyPedes();
+		  		if(timer_flag[BLINK]){
+		  			if(flag == 0){
+		  				blinkyLight(RED);
+		  				flag = 1;
+		  			}
+		  			else if(flag == 1){
+		  				blinkyLight(YELLOW);
+		  				flag = 2;
+		  			}
+		  			else {
+		  				blinkyLight(GREEN);
+		  				flag = 0;
+		  			}
+		  			setTimer(BLINK,30);
+		  		}
+		  		if (is_button_pressed(3)){
+		  			clearPedes();
+		  			status= INIT_1;
+		  		}
+		  		break;
 
 		  default:
 			status = INIT_1;
@@ -372,6 +413,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }

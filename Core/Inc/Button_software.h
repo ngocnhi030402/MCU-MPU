@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef INC_INPUT_READING_H_
 #define INC_INPUT_READING_H_
 
@@ -18,6 +20,18 @@
 extern uint8_t flagForButtonPressed[NO_OF_BUTTONS];
 extern uint8_t flagForButtonDoublePressed[NO_OF_BUTTONS];
 extern uint8_t flagForButtonHold[NO_OF_BUTTONS];
+
+#define MAX_BUTTON	4
+
+#define BTN_1	0
+#define BTN_2	1
+#define BTN_3	2
+#define BTN_PD	3
+
+//void button_reading(void);
+//int button_isPressed(int index);
+//int button_isLongPressed(int index);
+//void subKeyProcess(int index);
 
 void button_reading(void);
 int is_button_pressed(int index);
