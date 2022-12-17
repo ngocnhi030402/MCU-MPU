@@ -12,4 +12,5 @@ Debug/*
 *.run.xml
 *.synctex.gz
 *.o
+*.orig
 desktop.ini

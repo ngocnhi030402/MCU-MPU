@@ -49,10 +49,6 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-#define  RED_TIME_RESET		5;
-#define  GREEN_TIME_RESET	3;
-#define  YELLOW_TIME_RESET	2;
-
 const int red_time_reset = RED_TIME_RESET;
 const int green_time_reset = GREEN_TIME_RESET;
 const int yellow_time_reset = YELLOW_TIME_RESET;
@@ -63,9 +59,7 @@ int YELLOW_TIME = YELLOW_TIME_RESET;
 
 int isYellow = 0;
 
-#define timer_prop  1000
-
-#define LIGHT_BLINK_TIME 2
+uint8_t tuneBlinkOn = 1;
 #define BLINK 6
 const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
@@ -96,6 +90,11 @@ static void MX_TIM2_Init(void);
 STATE status = INIT_1;
 MODE mode = MODE_AUTO;
 
+void UARTOutput(int inpNum){
+	char str[50];
+	HAL_UART_Transmit(&huart2, (uint8_t *)str, sprintf(str, "!Countdown: %ld#\r\n", inpNum), 1000);
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	button_reading();
 	for (int i = 0 ; i < TIMER_LIMIT; i++){
@@ -112,20 +111,23 @@ void redManualRun(){
 }
 
 void redTuningRun(){
-	turnOnRed(0);
-	turnOnGreen(1);
-
-	if (is_button_pressed(1) == 1){
-		RED_TIME = (RED_TIME < 99) ? RED_TIME+1 : RED_TIME;
-		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	if (tuneBlinkOn == 1){
+		turnOnRed(0);
+		turnOnRed(1);
 	}
-	else if (is_button_pressed(2) == 1){
-		RED_TIME = red_time_reset;
-		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	else if (tuneBlinkOn == 0 && timer_flag[TUNE_BLINK_TIMER] == 1){
+		timer_flag[TUNE_BLINK_TIMER] = 0;
+		tuneBlinkOn = 1;
 	}
 
-	countdown_0 = RED_TIME;
-	countdown_1 = 2;
+	if (is_button_pressed(TUNING_BUTTON) == 1){
+		tuneBlinkOn = 0;
+		setTimer(0.1*timer_prop, TUNE_BLINK_TIMER);
+		turnOffAll();
+
+		RED_TIME = ((RED_TIME <= RED_MAX_COUNTDOWN) ? RED_TIME+1 : RED_MIN_COUNTDOWN);
+		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	}
 }
 
 void greenManualRun(){
@@ -134,20 +136,24 @@ void greenManualRun(){
 }
 
 void greenTuningRun(){
-	turnOnGreen(0);
-	turnOnRed(1);
-
-	if (is_button_pressed(1) == 1){
-		YELLOW_TIME = (YELLOW_TIME < 99) ? YELLOW_TIME+1 : YELLOW_TIME;
-		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	if (tuneBlinkOn == 1){
+		turnOnGreen(0);
+		turnOnGreen(1);
 	}
-	else if (is_button_pressed(2) == 1){
-		YELLOW_TIME = yellow_time_reset;
-		GREEN_TIME = RED_TIME - YELLOW_TIME;
+	else if (tuneBlinkOn == 0 && timer_flag[TUNE_BLINK_TIMER] == 1){
+		timer_flag[TUNE_BLINK_TIMER] = 0;
+		tuneBlinkOn = 1;
 	}
 
-	countdown_0 = YELLOW_TIME;
-	countdown_1 = 3;
+
+	if (is_button_pressed(TUNING_BUTTON) == 1){
+		tuneBlinkOn = 0;
+		setTimer(0.1*timer_prop, TUNE_BLINK_TIMER);
+		turnOffAll();
+
+		GREEN_TIME = ((GREEN_TIME < GREEN_MAX_COUNTDOWN) ? GREEN_TIME+1 : GREEN_MIN_COUNTDOWN);
+		RED_TIME = GREEN_TIME + YELLOW_TIME;
+	}
 }
 
 void yellowManualRun(){
@@ -155,22 +161,6 @@ void yellowManualRun(){
 	turnOnRed(1);
 }
 
-void yellowTuningRun(){
-	turnOnYellow(0);
-	turnOnRed(1);
-
-	if (is_button_pressed(1) == 1){
-		GREEN_TIME = (GREEN_TIME < 99) ? GREEN_TIME+1 : GREEN_TIME;
-		RED_TIME = GREEN_TIME + YELLOW_TIME;
-	}
-	else if (is_button_pressed(2) == 1){
-		GREEN_TIME = green_time_reset;
-		RED_TIME = GREEN_TIME + YELLOW_TIME;
-	}
-
-	countdown_0 = GREEN_TIME;
-	countdown_1 = 4;
-}
 
 void redAutoRun(){
 	turnOnRed(0);
@@ -258,8 +248,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  setTimer(oneSec, 1);
-  setTimer(ledRefreshTime, 0);
+  setTimer(oneSec, COUNTDOWN_TIMER);
 
   HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
@@ -286,10 +275,9 @@ int main(void)
 			redAutoRun();
 
 		    // State transition auto->manual
-		  	if (is_button_pressed(1) == 1){
+		  	if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
 		  		mode = MODE_MANUAL;
 		  		status = RED_MAN;
-		  		setTimer(light_blink_time, 2);
 		  		countdown_0 = RED_TIME;
 		  		countdown_1 = 2;
 		  		turnOffAll();
@@ -302,10 +290,9 @@ int main(void)
 			greenAutoRun();
 
 			// State transition auto->manual
-			if (is_button_pressed(1) == 1){
+			if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
 				mode = MODE_MANUAL;
 				status = RED_MAN;
-				setTimer(light_blink_time, 2);
 				countdown_0 = RED_TIME;
 				countdown_1 = 2;
 				turnOffAll();
@@ -318,7 +305,7 @@ int main(void)
 			yellowAutoRun();
 
 			// State transition auto->manual
-			if (is_button_pressed(1) == 1){
+			if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
 				mode = MODE_MANUAL;
 				status = RED_MAN;
 				turnOffAll();
@@ -331,7 +318,7 @@ int main(void)
 			redManualRun();
 
 			// State transition red_man -> green_man
-			if (is_button_pressed(0) == 1){
+			if (is_button_pressed(INSIDE_STATE_CHANGE_BUTTON) == 1){
 				if (isYellow == 0){
 					isYellow = 1;
 				}
@@ -341,6 +328,11 @@ int main(void)
 					turnOffAll();
 				}
 			}
+			else if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
+				mode = MODE_TUNING;
+				status = RED_TUNING;
+				turnOffAll();
+			}
 
 			break;
 
@@ -349,22 +341,58 @@ int main(void)
 			greenManualRun();
 
 		  	// State transition green_man -> yellow_man
-		  	if (is_button_pressed(0) == 1){
+		  	if (is_button_pressed(INSIDE_STATE_CHANGE_BUTTON) == 1){
 		  		mode = MODE_MANUAL;
 		  		status = YELLOW_MAN;
 		  		turnOffAll();
 		  	}
+			else if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
+				mode = MODE_TUNING;
+				status = RED_TUNING;
+				turnOffAll();
+			}
 			break;
 
 
 		  case(YELLOW_MAN):
 			yellowManualRun();
 			// State transition green_man -> yellow_man
-			if (is_button_pressed(0) == 1){
+			if (is_button_pressed(INSIDE_STATE_CHANGE_BUTTON) == 1){
 				mode = MODE_MANUAL;
 				status = RED_MAN;
 				isYellow = 0;
 				turnOffAll();
+			}
+			else if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
+				mode = MODE_TUNING;
+				status = RED_TUNING;
+				turnOffAll();
+			}
+			break;
+
+
+		  case(RED_TUNING):
+			redTuningRun();
+		    if (is_button_pressed(INSIDE_STATE_CHANGE_BUTTON)){
+		    	mode = MODE_TUNING;
+		    	status = GREEN_TUNING;
+		    }
+		    else if (is_button_pressed(STATE_CHANGE_BUTTON)){
+		    	mode = MODE_AUTO;
+		    	status = INIT_1;
+		    }
+			break;
+
+
+		  case(GREEN_TUNING):
+			greenTuningRun();
+		  	if (is_button_pressed(INSIDE_STATE_CHANGE_BUTTON)){
+				mode = MODE_TUNING;
+				status = RED_TUNING;
+			}
+		  	else if (is_button_pressed(STATE_CHANGE_BUTTON)){
+				mode = MODE_AUTO;
+				status = INIT_1;
 			}
 			break;
 
@@ -401,8 +429,8 @@ int main(void)
 	   * -------------- TIMER THING ----------------
 	   */
 	  if (mode == MODE_AUTO){
-		  if (timer_flag[1] == 1){
-			  setTimer(oneSec,1);
+		  if (timer_flag[COUNTDOWN_TIMER] == 1){
+			  setTimer(oneSec,COUNTDOWN_TIMER);
 			  countdown_0--;
 			  countdown_1--;
 		  }
