@@ -46,13 +46,13 @@ uint16_t LedPinPedes[2] = {
 void clearPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],0);
-	buzzer_turn_off();
+//	buzzer_turn_off();
 }
 
 void turnOnPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
-	buzzer_turn_on();
+//	buzzer_turn_on();
 }
 
 void blinkyPedes(void){
