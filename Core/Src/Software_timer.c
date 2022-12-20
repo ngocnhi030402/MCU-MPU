@@ -26,18 +26,3 @@ void timerRun(int flag){
 			timer_flag[flag] = 1;
 	}
 }
-
-void timer_setDuration(int flag, int duration){
-
-}
-int	timer_checkFlag(int flag){
-	if(timer_flag[flag] == 1){
-		timer_flag[flag] = 0;
-		return 1;
-	}
-	return 0;
-}
-void timer_clear(int flag){
-	timer_counter[flag] = 0;
-	timer_flag[flag] = 0;
-}

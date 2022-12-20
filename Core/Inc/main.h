@@ -17,6 +17,7 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
+#pragma once
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -145,16 +146,9 @@ void Error_Handler(void);
 #define STATE_CHANGE_BUTTON			0
 #define INSIDE_STATE_CHANGE_BUTTON	1
 #define TUNING_BUTTON				2
-#define PEDES_BUTTON 				3
 
 #define timer_prop  1000
 #define LIGHT_BLINK_TIME 2
-#define PEDES_BLINK_TIME 3
-
-
-#define REDLED 90
-#define GREENLED 91
-#define YELLOWLED 92
 
 
 /* USER CODE END Private defines */
