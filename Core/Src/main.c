@@ -92,11 +92,32 @@ void UARTOutput(int inpNum){
 	HAL_UART_Transmit(&huart2, (uint8_t *)str, sprintf(str, "!Countdown: %ld#\r\n", inpNum), 1000);
 }
 
+int buzzerCounter = 0;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	button_reading();
 	for (int i = 0 ; i < TIMER_LIMIT; i++){
 		timerRun(i);
 	}
+
+	if (buzzerOn == 1){
+		if (buzzerCounter < 500){
+			buzzer_turn_off();
+			buzzerCounter++;
+		}
+		else
+		{
+			buzzer_turn_on();
+			buzzerCounter++;
+			if (buzzerConuter >= 600)
+				buzzerCounter = 0;
+		}
+	}
+	else{
+		buzzer_turn_off();
+		buzzerCounter = 0;
+	}
+
 }
 
 void redManualRun(){
@@ -254,10 +275,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  int counter = 1;
+
   while (1)
   {
-	  buzzer_turn_on();
 //	  /*
 //	   * -------------- FSM ----------------
 //	   */
