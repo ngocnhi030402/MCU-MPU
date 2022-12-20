@@ -45,6 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 
@@ -63,13 +64,33 @@ uint8_t tuneBlinkOn = 1;
 #define BLINK 6
 const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
+int STATUS_PEDES;
+
+#define INIT 50
+#define PEDES_ON 51
+#define PEDES_OFF 52
+#define PEDES_INIT 53
+#define PEDES_RED 54
+#define PEDES_GREEN 55
+
+//define for blinky pedestrian led
+#define PD_LED_ON	71
+#define PD_LED_OFF	72
+
+int pd_active_state;
+int pd_led_state;
+
+#define PD_LED_ON	71
+#define PD_LED_OFF	72
+
 
 //int red_time = RED_TIME*timer_prop;
 //int green_time = GREEN_TIME*timer_prop;
 //int yellow_time = YELLOW_TIME*timer_prop;
 
 int light_blink_time = LIGHT_BLINK_TIME*timer_prop;
-
+int pedes_blink_time = PEDES_BLINK_TIME*timer_prop;
+int pedes_state;
 int countdown_0 = RED_TIME_RESET;
 int countdown_1 = GREEN_TIME_RESET;
 
@@ -81,6 +102,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,11 +111,6 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 STATE status = INIT_1;
 MODE mode = MODE_AUTO;
-
-void UARTOutput(int inpNum){
-	char str[50];
-	HAL_UART_Transmit(&huart2, (uint8_t *)str, sprintf(str, "!Countdown: %ld#\r\n", inpNum), 1000);
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	button_reading();
@@ -207,13 +224,21 @@ void blinkyLight(enum StateLight currentState){
 			blink = 0;
 		}
 		else{
-			redAutoRun();
-			greenAutoRun();
-//			turnOnLight(currentState,HOR);
+			turnOnRed(0);
+			turnOnGreen(0);
+			turnOnYellow(0);
+			turnOnRed(1);
+			turnOnGreen(1);
+			turnOnYellow(1);
+
 			blink = 1;
 		}
 		setTimer(BLINK,200);
 	}
+}
+void led_pedestrian_blinky(int led_type) {
+	if (pd_led_state == PD_LED_ON) led_turn_on(PEDESTRIAN, led_type);
+	else led_turn_off(PEDESTRIAN, led_type);
 }
 /* USER CODE END 0 */
 
@@ -247,6 +272,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   setTimer(oneSec, COUNTDOWN_TIMER);
 
@@ -396,35 +422,70 @@ int main(void)
 			}
 			break;
 
-		  case PEDES:
-		  		setTimer(BLINK,10);
-		  		blinkyPedes();
-		  		if(timer_flag[BLINK]){
-		  			if(flag == 0){
-		  				blinkyLight(RED);
-		  				flag = 1;
-		  			}
-		  			else if(flag == 1){
-		  				blinkyLight(YELLOW);
-		  				flag = 2;
-		  			}
-		  			else {
-		  				blinkyLight(GREEN);
-		  				flag = 0;
-		  			}
-		  			setTimer(BLINK,30);
-		  		}
-		  		if (is_button_pressed(3)){
-		  			clearPedes();
-		  			status= INIT_1;
-		  		}
-		  		break;
 
 		  default:
 			status = INIT_1;
 			break;
 	  }
 
+	  switch(STATUS_PEDES){
+	  	  	  case INIT:
+	  	  		  clearPedes();
+	  	  		  STATUS_PEDES = PEDES_OFF;
+	  	  		  break;
+
+	  	  	  case PEDES_OFF:
+	  	  		clearPedes();
+	  	  		  if(is_button_pressed(3)){
+	  	  			  STATUS_PEDES = PEDES_ON;
+	  	  			timer_clear(TIMER_PD); //clear pedestrian
+//	  	  			timer_clear(TIMER_BLINK);
+	  	  			setTimer(pedes_blink_time, 3);
+	  	  		  }
+
+	  	  		  break;
+
+	  	  	  case PEDES_ON:
+	  	  		  setTimer(pedes_blink_time, 3);
+	  	  		  turnOnPedes();
+	  	  		  if(pedes_state == PD_LED_OFF){
+	  	  			  pedes_state = PD_LED_ON;
+	  	  		  }
+	  	  		  else pedes_state = PD_LED_OFF;
+
+	  	  		  switch(pedes_state){
+	  	  		  case PEDES_INIT:
+	  	  			  pedes_state = PEDES_RED;
+	  	  			  break;
+	  	  		  case PEDES_RED:
+	  	  			led_pedestrian_blinky(LED_RED);
+	  	  			led_turn_on(PEDESTRIAN, LED_RED);
+
+	  	  			if(is_button_pressed(3)){
+	  	  				timer_clear(TIMER_PD);
+	  	  				setTimer(pedes_blink_time, 3);
+	  	  			}
+	  	  			  break;
+	  	  		  case PEDES_GREEN:
+	  				led_turn_on(PEDESTRIAN, LED_GREEN);
+	  				led_pedestrian_blinky(LED_GREEN);
+
+	  				if(is_button_pressed(3)){
+	  					timer_clear(TIMER_PD);
+	  					setTimer(pedes_blink_time, 3);
+	  				}
+
+
+
+	  	  			  break;
+	  	  		  default:
+	  	  			  break;
+	  	  		  }
+	  	  		  break;
+	  	  }
+	  if (timer_checkFlag(TIMER_PD)) {
+		  STATUS_PEDES = INIT;
+	  }
 	  /*
 	   * -------------- TIMER THING ----------------
 	   */
@@ -526,6 +587,45 @@ static void MX_TIM2_Init(void)
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 0;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_OnePulse_Init(&htim3, TIM_OPMODE_SINGLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
 
 }
 

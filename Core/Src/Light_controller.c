@@ -46,15 +46,29 @@ uint16_t LedPinPedes[2] = {
 void clearPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],0);
-	buzzer_turn_off();
+
 }
 
 void turnOnPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
-	buzzer_turn_on();
+
 }
 
+void blinklyLight(enum StateLight currentState){
+	if(timer_flag[BLINK]){
+			if(blink){
+				clearTrafficLight();
+				blink = 0;
+			}
+			else{
+//				turnOnLight(currentState,VER);
+//				turnOnLight(currentState,HOR);
+				blink = 1;
+			}
+			setTimer(BLINK,200);
+		}
+}
 void blinkyPedes(void){
 	if(timer_flag[BLINK]){
 		if(blink){
@@ -72,6 +86,7 @@ void turnOnRed(int lightIndex){
 	if(lightIndex > 1)
 		return;
 
+	flag = 1;
 	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 1);
 	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 0);
 }
@@ -81,6 +96,7 @@ void turnOnGreen(int lightIndex){
 	if(lightIndex > 1)
 		return;
 
+	flag = 2;
 	HAL_GPIO_WritePin(lightPort[lightIndex][0], lightPin[lightIndex][0], 0);
 	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 1);
 
@@ -105,8 +121,8 @@ void turnOffAll(){
 	HAL_GPIO_WritePin(lightPort[lightIndex][1], lightPin[lightIndex][1], 0);
 }
 
-void led_turn_on(uint8_t led_index, uint8_t led_type) {
-	switch (led_index) {	//////////////////////////////////////////////////////////////////
+void led_turn_on(int led_index, int led_type) {
+	switch (led_index) {
 	case PEDESTRIAN:
 		switch (led_type) {
 		case LED_RED: //01
@@ -123,7 +139,24 @@ void led_turn_on(uint8_t led_index, uint8_t led_type) {
 			break;
 		}
 		break;
-	//////////////////////////////////////////////////////////////////
+	default:
+		break;
+	}
+}
+
+void led_turn_off(int led_index, int led_type) {
+	switch (led_index) {
+	case PEDESTRIAN:
+		switch (led_type) {
+		case LED_RED:
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+			break;
+		case LED_GREEN:
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+			break;
+		}
+		break;
+
 	default:
 		break;
 	}
