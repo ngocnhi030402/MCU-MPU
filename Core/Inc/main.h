@@ -58,7 +58,7 @@ typedef enum {
 	MODE_AUTO,
 	MODE_MANUAL,
 	MODE_TUNING
-} MODE;
+} TRAFFIC_MODE;
 
 enum StateLight{
 	INIT,
@@ -66,6 +66,15 @@ enum StateLight{
 	YELLOW,
 	GREEN
 };
+
+typedef enum{
+	PEDES_RESET,
+	PEDES_ON,
+	PEDES_OFF,
+	PEDES_INIT,
+	PEDES_RED,
+	PEDES_GREEN
+} PEDES_MODE;
 
 /* USER CODE END ET */
 
