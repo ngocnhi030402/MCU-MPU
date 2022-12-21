@@ -45,7 +45,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 
@@ -66,13 +65,6 @@ const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
 PEDES_MODE STATUS_PEDES = PEDES_RESET;
 
-//define for blinky pedestrian led
-#define PD_LED_ON	71
-#define PD_LED_OFF	72
-
-int pd_active_state;
-int pd_led_state;
-
 //int red_time = RED_TIME*timer_prop;
 //int green_time = GREEN_TIME*timer_prop;
 //int yellow_time = YELLOW_TIME*timer_prop;
@@ -92,7 +84,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -101,6 +92,11 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN 0 */
 STATE status = INIT_1;
 TRAFFIC_MODE mode = MODE_AUTO;
+
+void UARTOutput(int inpNum){
+	char str[50];
+	HAL_UART_Transmit(&huart2, (uint8_t *)str, sprintf(str, "!Countdown: %ld#\r\n", inpNum), 1000);
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	button_reading();
@@ -214,21 +210,13 @@ void blinkyLight(enum StateLight currentState){
 			blink = 0;
 		}
 		else{
-			turnOnRed(0);
-			turnOnGreen(0);
-			turnOnYellow(0);
-			turnOnRed(1);
-			turnOnGreen(1);
-			turnOnYellow(1);
-
+			redAutoRun();
+			greenAutoRun();
+//			turnOnLight(currentState,HOR);
 			blink = 1;
 		}
 		setTimer(BLINK,200);
 	}
-}
-void led_pedestrian_blinky(int led_type) {
-	if (pd_led_state == PD_LED_ON) led_turn_on(PEDESTRIAN, led_type);
-	else led_turn_off(PEDESTRIAN, led_type);
 }
 /* USER CODE END 0 */
 
@@ -262,7 +250,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   setTimer(oneSec, COUNTDOWN_TIMER);
 
@@ -411,7 +398,6 @@ int main(void)
 				status = INIT_1;
 			}
 			break;
-
 
 		  default:
 			status = INIT_1;
@@ -587,45 +573,6 @@ static void MX_TIM2_Init(void)
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
-
-}
-
-/**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM3_Init(void)
-{
-
-  /* USER CODE BEGIN TIM3_Init 0 */
-
-  /* USER CODE END TIM3_Init 0 */
-
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM3_Init 1 */
-
-  /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_OnePulse_Init(&htim3, TIM_OPMODE_SINGLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-
-  /* USER CODE END TIM3_Init 2 */
 
 }
 

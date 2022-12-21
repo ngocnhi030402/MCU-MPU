@@ -7,6 +7,8 @@
 #include "stm32f1xx_hal.h"
 #include "main.h"
 
+//#define BOARD
+
 #define	TRAFFIC_1	5
 #define	TRAFFIC_2	6
 #define PEDESTRIAN	7
