@@ -58,7 +58,7 @@ typedef enum {
 	MODE_AUTO,
 	MODE_MANUAL,
 	MODE_TUNING
-} MODE;
+} TRAFFIC_MODE;
 
 enum StateLight{
 	INIT,
@@ -66,6 +66,15 @@ enum StateLight{
 	YELLOW,
 	GREEN
 };
+
+typedef enum{
+	PEDES_RESET,
+	PEDES_ON,
+	PEDES_OFF,
+	PEDES_INIT,
+	PEDES_RED,
+	PEDES_GREEN
+} PEDES_MODE;
 
 /* USER CODE END ET */
 
@@ -126,7 +135,10 @@ void Error_Handler(void);
 // timer index define
 #define COUNTDOWN_TIMER		0
 #define TUNE_BLINK_TIMER	1
-#define CHECK_FLASH_TIMER 	3
+#define PEDES_BLINK_TIMER	2
+#define TIMER_PD			3
+#define TIMER_DUR			4
+#define TIMER_BLINK			5
 
 // conutdown define
 #define  RED_TIME_RESET		5
@@ -143,9 +155,12 @@ void Error_Handler(void);
 #define STATE_CHANGE_BUTTON			0
 #define INSIDE_STATE_CHANGE_BUTTON	1
 #define TUNING_BUTTON				2
+#define PEDES_BUTTON				3
 
 #define timer_prop  1000
 #define LIGHT_BLINK_TIME 2
+#define PEDES_BLINK_TIME 3
+#define PEDES_TIME_OUT	 5
 
 
 /* USER CODE END Private defines */

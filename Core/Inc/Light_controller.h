@@ -17,9 +17,13 @@
 #define	LED_GREEN 	1
 #define LED_YELLOW	2
 
+#define LED_PEDES_GREEN	0
+#define LED_PEDES_RED	1
+
 void turnOnRed(int lightIndex);
 void turnOnGreen(int lightIndex);
 void turnOnYellow(int lightIndex);
+void turnOnPedes(int ledColor);
 
 void turnOffAll();
 

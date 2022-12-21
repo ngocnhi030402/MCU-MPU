@@ -63,13 +63,16 @@ uint8_t tuneBlinkOn = 1;
 #define BLINK 6
 const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
+PEDES_MODE STATUS_PEDES = PEDES_RESET;
 
 //int red_time = RED_TIME*timer_prop;
 //int green_time = GREEN_TIME*timer_prop;
 //int yellow_time = YELLOW_TIME*timer_prop;
 
 int light_blink_time = LIGHT_BLINK_TIME*timer_prop;
-
+int pedes_blink_time = PEDES_BLINK_TIME*timer_prop;
+int pedes_time_out = PEDES_TIME_OUT * timer_prop;
+int pedes_state;
 int countdown_0 = RED_TIME_RESET;
 int countdown_1 = GREEN_TIME_RESET;
 
@@ -85,7 +88,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 STATE status = INIT_1;
-MODE mode = MODE_AUTO;
+TRAFFIC_MODE mode = MODE_AUTO;
 
 void UARTOutput(int inpNum){
 	char str[50];
@@ -268,9 +271,9 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   setTimer(oneSec, COUNTDOWN_TIMER);
-
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  status = INIT_1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -278,9 +281,10 @@ int main(void)
 
   while (1)
   {
-//	  /*
-//	   * -------------- FSM ----------------
-//	   */
+	 /*
+	  * -------------- FSM ----------------
+	  */
+
 	  switch(status){
 		  case (INIT_1):
 			mode = MODE_AUTO;
@@ -290,10 +294,8 @@ int main(void)
 			isYellow = 0;
 			break;
 
-
 		  case (RED_AUTO):
 			redAutoRun();
-
 		    // State transition auto->manual
 		  	if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
 		  		mode = MODE_MANUAL;
@@ -304,7 +306,6 @@ int main(void)
 		  		isYellow = 0;
 		  	}
 			break;
-
 
 		  case (GREEN_AUTO):
 			greenAutoRun();
@@ -416,35 +417,79 @@ int main(void)
 			}
 			break;
 
-		  case PEDES:
-		  		setTimer(BLINK,10);
-		  		blinkyPedes();
-		  		if(timer_flag[BLINK]){
-		  			if(flag == 0){
-		  				blinkyLight(RED);
-		  				flag = 1;
-		  			}
-		  			else if(flag == 1){
-		  				blinkyLight(YELLOW);
-		  				flag = 2;
-		  			}
-		  			else {
-		  				blinkyLight(GREEN);
-		  				flag = 0;
-		  			}
-		  			setTimer(BLINK,30);
-		  		}
-		  		if (is_button_pressed(3)){
-		  			clearPedes();
-		  			status= INIT_1;
-		  		}
-		  		break;
-
 		  default:
-			status = INIT_1;
+			// status = INIT_1;
 			break;
 	  }
 
+
+	  /*
+	   * ---------------- PEDESTRIAN LIGHT FSM -----------------
+	   */
+	  switch(STATUS_PEDES){
+		  case PEDES_RESET:
+			  clearPedes();
+			  STATUS_PEDES = PEDES_OFF;
+			  break;
+
+		  case PEDES_OFF:
+			  clearPedes();
+			  if(is_button_pressed(PEDES_BUTTON)){
+				  STATUS_PEDES = PEDES_ON;
+				  pedes_state = PEDES_INIT;
+				  setTimer(pedes_time_out, TIMER_PD);
+			  }
+			  break;
+
+		  case PEDES_ON:
+			  switch(pedes_state){
+				  case PEDES_INIT:
+					  if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						  pedes_state = PEDES_GREEN;
+					  else
+						  pedes_state = PEDES_RED;
+					  break;
+
+				  case PEDES_RED:
+					turnOnPedes(LED_PEDES_RED);
+
+					if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						pedes_state = PEDES_GREEN;
+					else
+						pedes_state = PEDES_RED;
+
+					if(is_button_pressed(PEDES_BUTTON)){
+						setTimer(pedes_time_out, TIMER_PD);
+					}
+					break;
+
+				  case PEDES_GREEN:
+					turnOnPedes(LED_PEDES_GREEN);
+
+					if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						pedes_state = PEDES_GREEN;
+					else
+						pedes_state = PEDES_RED;
+
+					if(is_button_pressed(PEDES_BUTTON)){
+						setTimer(pedes_time_out, TIMER_PD);
+					}
+					break;
+
+				  default:
+					pedes_state = PEDES_INIT;
+					break;
+			  }
+			  break;
+
+		  default:
+			  STATUS_PEDES = PEDES_RESET;
+			  break;
+	  }
+
+	  if (timer_flag[TIMER_PD] == 1 && STATUS_PEDES == PEDES_ON) {
+		  STATUS_PEDES = PEDES_RESET;
+	  }
 	  /*
 	   * -------------- TIMER THING ----------------
 	   */

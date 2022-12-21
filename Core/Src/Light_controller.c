@@ -35,8 +35,8 @@ uint16_t lightPin[2][3] = {
 		}
 };
 GPIO_TypeDef * LedPortPedes[2] = {
-		GPIOB,
-		GPIOA
+		PEDESTRIAN_LED_0_GPIO_Port,
+		PEDESTRIAN_LED_1_GPIO_Port
 };
 uint16_t LedPinPedes[2] = {
 		PEDESTRIAN_LED_0_Pin,
@@ -46,28 +46,20 @@ uint16_t LedPinPedes[2] = {
 void clearPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],0);
-//	buzzer_turn_off();
 }
 
-void turnOnPedes(void){
-	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
-	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
-//	buzzer_turn_on();
-}
-
-void blinkyPedes(void){
-	if(timer_flag[BLINK]){
-		if(blink){
-			clearPedes();
-			blink = 0;
-		}
-		else{
-			turnOnPedes();
-			blink = 1;
-		}
-		setTimer(BLINK,1000);
+void turnOnPedes(int ledColor){
+	if (ledColor == LED_PEDES_GREEN){
+		HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
+		HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
+	}
+	else{
+		HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],1);
+		HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
 	}
 }
+
+
 void turnOnRed(int lightIndex){
 	if(lightIndex > 1)
 		return;
@@ -107,22 +99,25 @@ void turnOffAll(){
 
 void led_turn_on(uint8_t led_index, uint8_t led_type) {
 	switch (led_index) {	//////////////////////////////////////////////////////////////////
-	case PEDESTRIAN:
-		switch (led_type) {
-		case LED_RED: //01
-			HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_RESET);
+		case PEDESTRIAN:
+			switch (led_type) {
+				case LED_RED: //01
+					HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_SET);
+					HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_RESET);
+					break;
+
+				case LED_GREEN: //10
+					HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_RESET);
+					HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_SET);
+					break;
+
+				case LED_YELLOW: //11
+					HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_SET);
+					HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_SET);
+					break;
+			}
 			break;
-		case LED_GREEN: //10
-			HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_SET);
-			break;
-		case LED_YELLOW: //11
-			HAL_GPIO_WritePin(GPIOB, PEDESTRIAN_LED_0_Pin, GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, PEDESTRIAN_LED_1_Pin, GPIO_PIN_SET);
-			break;
-		}
-		break;
+
 	//////////////////////////////////////////////////////////////////
 	default:
 		break;
