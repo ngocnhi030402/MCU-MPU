@@ -64,7 +64,7 @@ uint8_t tuneBlinkOn = 1;
 #define BLINK 6
 const int oneSec = timer_prop*1;
 const int ledRefreshTime = timer_prop*0.5;
-PEDES_MODE STATUS_PEDES;
+PEDES_MODE STATUS_PEDES = PEDES_RESET;
 
 //define for blinky pedestrian led
 #define PD_LED_ON	71
@@ -79,6 +79,7 @@ int pd_led_state;
 
 int light_blink_time = LIGHT_BLINK_TIME*timer_prop;
 int pedes_blink_time = PEDES_BLINK_TIME*timer_prop;
+int pedes_time_out = PEDES_TIME_OUT * timer_prop;
 int pedes_state;
 int countdown_0 = RED_TIME_RESET;
 int countdown_1 = GREEN_TIME_RESET;
@@ -273,9 +274,9 @@ int main(void)
 //  int counter = 1;
   while (1)
   {
-//	  /*
-//	   * -------------- FSM ----------------
-//	   */
+	 /*
+	  * -------------- FSM ----------------
+	  */
 	  switch(status){
 		  case (INIT_1):
 			mode = MODE_AUTO;
@@ -422,63 +423,68 @@ int main(void)
 	   * ---------------- PEDESTRIAN LIGHT FSM -----------------
 	   */
 	  switch(STATUS_PEDES){
-	  	  	  case PEDES_RESET:
-	  	  		  clearPedes();
-	  	  		  STATUS_PEDES = PEDES_OFF;
-	  	  		  break;
+		  case PEDES_RESET:
+			  clearPedes();
+			  STATUS_PEDES = PEDES_OFF;
+			  break;
 
-	  	  	  case PEDES_OFF:
-	  	  		clearPedes();
-	  	  		  if(is_button_pressed(PEDES_BUTTON)){
-	  	  			  STATUS_PEDES = PEDES_ON;
-	  	  			timer_clear(TIMER_PD); //clear pedestrian
-//	  	  			timer_clear(TIMER_BLINK);
-	  	  			setTimer(pedes_blink_time, 3);
-	  	  		  }
+		  case PEDES_OFF:
+			  clearPedes();
+			  if(is_button_pressed(PEDES_BUTTON)){
+				  STATUS_PEDES = PEDES_ON;
+				  pedes_state = PEDES_INIT;
+				  setTimer(pedes_time_out, TIMER_PD);
+			  }
+			  break;
 
-	  	  		  break;
-
-	  	  	  case PEDES_ON:
-	  	  		  setTimer(pedes_blink_time, 3);
-	  	  		  turnOnPedes();
-	  	  		  if(pedes_state == PD_LED_OFF){
-	  	  			  pedes_state = PD_LED_ON;
-	  	  		  }
-	  	  		  else pedes_state = PD_LED_OFF;
-
-	  	  		  switch(pedes_state){
-
-					  case PEDES_INIT:
+		  case PEDES_ON:
+			  switch(pedes_state){
+				  case PEDES_INIT:
+					  if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						  pedes_state = PEDES_GREEN;
+					  else
 						  pedes_state = PEDES_RED;
-						  break;
+					  break;
 
-					  case PEDES_RED:
-						led_pedestrian_blinky(LED_RED);
-						led_turn_on(PEDESTRIAN, LED_RED);
+				  case PEDES_RED:
+					turnOnPedes(LED_PEDES_RED);
 
-						if(is_button_pressed(PEDES_BUTTON)){
-							timer_clear(TIMER_PD);
-							setTimer(pedes_blink_time, 3);
-						}
-						break;
+					if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						pedes_state = PEDES_GREEN;
+					else
+						pedes_state = PEDES_RED;
 
-					  case PEDES_GREEN:
-						led_turn_on(PEDESTRIAN, LED_GREEN);
-						led_pedestrian_blinky(LED_GREEN);
+					if(is_button_pressed(PEDES_BUTTON)){
+						setTimer(pedes_time_out, TIMER_PD);
+					}
+					break;
 
-						if(is_button_pressed(PEDES_BUTTON)){
-							timer_clear(TIMER_PD);
-							setTimer(pedes_blink_time, 3);
-						}
-						break;
+				  case PEDES_GREEN:
+					turnOnPedes(LED_PEDES_GREEN);
 
-					  default:
-						break;
-	  	  		  }
-	  	  		  break;
-	  	  }
-	  if (timer_checkFlag(TIMER_PD)) {
-		  STATUS_PEDES = INIT;
+					if (status == RED_MAN ||status == RED_AUTO || status == RED_TUNING)
+						pedes_state = PEDES_GREEN;
+					else
+						pedes_state = PEDES_RED;
+
+					if(is_button_pressed(PEDES_BUTTON)){
+						setTimer(pedes_time_out, TIMER_PD);
+					}
+					break;
+
+				  default:
+					pedes_state = PEDES_INIT;
+					break;
+			  }
+			  break;
+
+		  default:
+			  STATUS_PEDES = PEDES_RESET;
+			  break;
+	  }
+
+	  if (timer_flag[TIMER_PD] == 1 && STATUS_PEDES == PEDES_ON) {
+		  STATUS_PEDES = PEDES_RESET;
 	  }
 	  /*
 	   * -------------- TIMER THING ----------------

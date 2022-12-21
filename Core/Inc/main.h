@@ -137,7 +137,10 @@ void Error_Handler(void);
 // timer index define
 #define COUNTDOWN_TIMER		0
 #define TUNE_BLINK_TIMER	1
-#define CHECK_FLASH_TIMER 	3
+#define PEDES_BLINK_TIMER	2
+#define TIMER_PD			3
+#define TIMER_DUR			4
+#define TIMER_BLINK			5
 
 // conutdown define
 #define  RED_TIME_RESET		5
@@ -159,6 +162,7 @@ void Error_Handler(void);
 #define timer_prop  1000
 #define LIGHT_BLINK_TIME 2
 #define PEDES_BLINK_TIME 3
+#define PEDES_TIME_OUT	 5
 
 
 #define REDLED 90

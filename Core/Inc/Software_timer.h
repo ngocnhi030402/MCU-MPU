@@ -11,15 +11,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define TIMER_LIMIT 4
-
-#define TIMER_TEST_0	0
-#define TIMER_AUTO_A	1
-#define TIMER_AUTO_B	2
-#define TIMER_SET_LONG	3
-#define TIMER_PD		4
-#define TIMER_DUR		5
-#define TIMER_BLINK		6
+#define TIMER_LIMIT 	7
 
 extern int timer_counter[TIMER_LIMIT];
 extern int timer_flag[TIMER_LIMIT];

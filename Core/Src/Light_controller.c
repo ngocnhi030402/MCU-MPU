@@ -49,10 +49,15 @@ void clearPedes(void){
 
 }
 
-void turnOnPedes(void){
-	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
-	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
-
+void turnOnPedes(int ledColor){
+	if (ledColor == LED_PEDES_GREEN){
+		HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
+		HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
+	}
+	else{
+		HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],1);
+		HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],1);
+	}
 }
 
 void blinklyLight(enum StateLight currentState){
@@ -69,19 +74,19 @@ void blinklyLight(enum StateLight currentState){
 			setTimer(BLINK,200);
 		}
 }
-void blinkyPedes(void){
-	if(timer_flag[BLINK]){
-		if(blink){
-			clearPedes();
-			blink = 0;
-		}
-		else{
-			turnOnPedes();
-			blink = 1;
-		}
-		setTimer(BLINK,1000);
-	}
-}
+//void blinkyPedes(void){
+//	if(timer_flag[BLINK]){
+//		if(blink){
+//			clearPedes();
+//			blink = 0;
+//		}
+//		else{
+//			turnOnPedes();
+//			blink = 1;
+//		}
+//		setTimer(BLINK,1000);
+//	}
+//}
 void turnOnRed(int lightIndex){
 	if(lightIndex > 1)
 		return;
