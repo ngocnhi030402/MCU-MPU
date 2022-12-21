@@ -109,7 +109,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		{
 			buzzer_turn_on();
 			buzzerCounter++;
-			if (buzzerConuter >= 600)
+			if (buzzerCounter >= 600)
 				buzzerCounter = 0;
 		}
 	}
