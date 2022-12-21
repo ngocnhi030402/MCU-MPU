@@ -8,8 +8,7 @@
 
 #include "buzzer.h"
 #include "global.h"
-
-TIM_HandleTypeDef htim3;
+#include "tim.h"
 
 void buzzer_modify_volume(uint8_t volumeLevel) {
   __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, volumeLevel);

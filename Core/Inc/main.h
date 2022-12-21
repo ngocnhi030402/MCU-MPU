@@ -17,7 +17,6 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-#pragma once
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -112,8 +111,6 @@ void Error_Handler(void);
 #define BUTTON2_GPIO_Port GPIOA
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
-#define SPEAKER_Pin GPIO_PIN_6
-#define SPEAKER_GPIO_Port GPIOA
 #define BUTTON3_Pin GPIO_PIN_0
 #define BUTTON3_GPIO_Port GPIOB
 #define PEDESTRIAN_LED_0_Pin GPIO_PIN_10
