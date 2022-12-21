@@ -148,8 +148,8 @@ void Error_Handler(void);
 #define RED_MAX_COUNTDOWN 		20
 #define GREEN_MAX_COUNTDOWN 	15
 
-#define RED_MIN_COUNTDOWN 	 	12
-#define GREEN_MIN_COUNTDOWN		9
+#define RED_MIN_COUNTDOWN 	 	5
+#define GREEN_MIN_COUNTDOWN		3
 
 // button index define
 #define STATE_CHANGE_BUTTON			0
