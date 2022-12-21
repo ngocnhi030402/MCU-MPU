@@ -158,6 +158,7 @@ void Error_Handler(void);
 #define STATE_CHANGE_BUTTON			0
 #define INSIDE_STATE_CHANGE_BUTTON	1
 #define TUNING_BUTTON				2
+#define PEDES_BUTTON				3
 
 #define timer_prop  1000
 #define LIGHT_BLINK_TIME 2

@@ -252,8 +252,9 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   setTimer(oneSec, COUNTDOWN_TIMER);
-
   HAL_TIM_Base_Start_IT(&htim2);
+
+  status = INIT_1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -264,6 +265,7 @@ int main(void)
 	 /*
 	  * -------------- FSM ----------------
 	  */
+
 	  switch(status){
 		  case (INIT_1):
 			mode = MODE_AUTO;
@@ -273,10 +275,8 @@ int main(void)
 			isYellow = 0;
 			break;
 
-
 		  case (RED_AUTO):
 			redAutoRun();
-
 		    // State transition auto->manual
 		  	if (is_button_pressed(STATE_CHANGE_BUTTON) == 1){
 		  		mode = MODE_MANUAL;
@@ -287,7 +287,6 @@ int main(void)
 		  		isYellow = 0;
 		  	}
 			break;
-
 
 		  case (GREEN_AUTO):
 			greenAutoRun();
@@ -400,7 +399,7 @@ int main(void)
 			break;
 
 		  default:
-			status = INIT_1;
+			// status = INIT_1;
 			break;
 	  }
 

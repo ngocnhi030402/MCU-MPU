@@ -35,8 +35,8 @@ uint16_t lightPin[2][3] = {
 		}
 };
 GPIO_TypeDef * LedPortPedes[2] = {
-		GPIOB,
-		GPIOA
+		PEDESTRIAN_LED_0_GPIO_Port,
+		PEDESTRIAN_LED_1_GPIO_Port
 };
 uint16_t LedPinPedes[2] = {
 		PEDESTRIAN_LED_0_Pin,
@@ -46,7 +46,6 @@ uint16_t LedPinPedes[2] = {
 void clearPedes(void){
 	HAL_GPIO_WritePin(LedPortPedes[0],LedPinPedes[0],0);
 	HAL_GPIO_WritePin(LedPortPedes[1],LedPinPedes[1],0);
-	buzzer_turn_off();
 }
 
 void turnOnPedes(int ledColor){
@@ -60,33 +59,7 @@ void turnOnPedes(int ledColor){
 	}
 }
 
-void blinklyLight(enum StateLight currentState){
-	if(timer_flag[BLINK]){
-			if(blink){
-				clearTrafficLight();
-				blink = 0;
-			}
-			else{
-//				turnOnLight(currentState,VER);
-//				turnOnLight(currentState,HOR);
-				blink = 1;
-			}
-			setTimer(BLINK,200);
-		}
-}
-//void blinkyPedes(void){
-//	if(timer_flag[BLINK]){
-//		if(blink){
-//			clearPedes();
-//			blink = 0;
-//		}
-//		else{
-//			turnOnPedes();
-//			blink = 1;
-//		}
-//		setTimer(BLINK,1000);
-//	}
-//}
+
 void turnOnRed(int lightIndex){
 	if(lightIndex > 1)
 		return;
