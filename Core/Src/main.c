@@ -30,6 +30,7 @@
 #include "Button_software.h"
 #include "Software_timer.h"
 #include "Light_controller.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,7 +93,8 @@ TRAFFIC_MODE mode = MODE_AUTO;
 
 void UARTOutput(int inpNum){
 	char str[50];
-	HAL_UART_Transmit(&huart2, (uint8_t *)str, sprintf(str, "!Countdown: %ld#\r\n", inpNum), 1000);
+	int nChar = sprintf(str, "!Countdown: %d#\r\n", inpNum);
+	HAL_UART_Transmit(&huart2, (uint8_t *)str, nChar, 1000);
 }
 
 int buzzerCounter = 0;

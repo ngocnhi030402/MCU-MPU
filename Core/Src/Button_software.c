@@ -28,7 +28,6 @@ uint8_t flagForButtonHold[NO_OF_BUTTONS];
 //we define counter for automatically increasing the value
 //after the button is pressed more than 1 second.
 static uint16_t counterForButtonHold[NO_OF_BUTTONS] = {0, 0, 0, 0};
-static uint16_t waitForSecondPress[NO_OF_BUTTONS] = {0, 0, 0, 0};
 static uint16_t waitForPressTimeOut[NO_OF_BUTTONS] = {DURATION_FOR_PRESSED_TIMEOUT,DURATION_FOR_PRESSED_TIMEOUT,DURATION_FOR_PRESSED_TIMEOUT,DURATION_FOR_PRESSED_TIMEOUT};
 
 void button_reading(void){
