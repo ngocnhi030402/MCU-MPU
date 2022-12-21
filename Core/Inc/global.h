@@ -16,7 +16,6 @@
 #include "Software_timer.h"
 
 static unsigned char blink = 0;
-static int buzzerOn = 0;
 
 // state for traffic
 extern uint8_t global_state;
